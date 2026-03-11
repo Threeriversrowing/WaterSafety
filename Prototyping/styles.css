@@ -1,0 +1,24 @@
+/*
+    styles.css
+    WaterSafety Prototyping
+*/
+
+body {
+
+}
+
+div.center {
+    min-width: 200pt;
+    max-width: 800pt;
+    align: center;
+    margin: auto;
+}
+
+table#conditions tr.measurement td.label {
+    font-weight: bold;
+    text-align: right;
+}
+
+table#conditions tr.measurement td.value {
+    text-align: right;
+}
