@@ -20,5 +20,5 @@ table#conditions tr.measurement td.label {
 }
 
 table#conditions tr.measurement td.value {
-    text-align: right;
+    text-align: left;
 }
