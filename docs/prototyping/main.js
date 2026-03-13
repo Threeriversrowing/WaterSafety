@@ -77,7 +77,10 @@ class Measurement {
     }
     
     formatted() {
-        let base_string = ("" + this.value + " " + this.units);
+        let base_string = ("" + this.value);
+        if (this.units != null && this.units != "") {
+            base_string += (" " + this.units);
+        }
         if (this.comment != "") {
             base_string += (" (" + this.comment + ")");
         }
@@ -105,7 +108,7 @@ function formatWindMeasurements(speed, direction, gust) {
         return speed.formatted();
     } else {
         let heading = closestCardinalDirection(direction.value);
-        return (speed.formatted() + " (&rarr;" + direction.formatted() + " " + heading.label + ")");
+        return (speed.formatted() + " (" + direction.formatted() + " " + heading.label + "&rarr;)");
     }
 }
 
@@ -203,6 +206,7 @@ function getWeatherData(siteCode) {
             air_temp: new Measurement(airTempF, "°F", weather.timestamp),
             humidity: new Measurement(weather.relativeHumidity.value.toFixed(0), "%", weather.timestamp),
             visibility: new Measurement(visibility_mi, "miles", weather.timestamp),
+            // Weather.gov returns the direction the wind is coming FROM -- may want to switch to proper vector convention
             wind_direction: new Measurement(weather.windDirection.value, "°", weather.timestamp),
             wind_gust: new Measurement(windGust_kph, "miles/hour", weather.timestamp),
             wind_speed: new Measurement(windSpeed_kph, "miles/hour", weather.timestamp)
@@ -216,6 +220,28 @@ function getWeatherData(siteCode) {
         weatherData.humidity.writeInto(document.querySelector('td.value#humidity'));
         
         document.querySelector('td.value#wind').innerHTML = formatWindMeasurements(weatherData.wind_speed, weatherData.wind_direction, weatherData.wind_gust);
+    });
+}
+
+function getAQIandUVI(location) {
+    const data_url = ("https://air-quality-api.open-meteo.com/v1/air-quality?" +
+        "latitude=" +location.latitude + 
+        "&longitude=" + location.longitude + 
+        "&current=us_aqi,uv_index");
+    // append &timezone=America%2FNew_York to get in eastern time -- with it omitted, will be in UTC
+    // but you'll have to remove the + 'Z' bit below
+    
+    getJSONFrom(data_url).then((json) => {
+        // OpenMeteo vends the timestamp without a timezone marker,
+        // so we request it in UTC and append the marker here to be certain
+        const timestamp = new Date(Date.parse(json.current.time + 'Z'));
+        return {
+            air_quality: new Measurement(json.current.us_aqi, null, timestamp),
+            uv_index: new Measurement(json.current.uv_index, null, timestamp)
+        };
+    }).then((measurements) => {
+        document.querySelector('td.value#air_quality').innerHTML = measurements.air_quality.formatted();
+        document.querySelector('td.value#uv_index').innerHTML = measurements.uv_index.formatted();
     });
 }
 
@@ -285,18 +311,36 @@ function getCSOFlagStatus() {
 
 // MARK: -
 
+function loadConditions(parameter_set) {
+    getAQIandUVI(parameter_set.location);
+    getSunCycle(parameter_set.location);
+    getWaterFlow(parameter_set.flow_gauge);
+    getWaterHeight(parameter_set.flood_gauge);
+    getWaterTemp(parameter_set.water_temp_site_id);
+    getWeatherData(parameter_set.weather_station);
+    
+    if (parameter_set.id == "TRRA") {
+        getCSOFlagStatus();
+    }
+}
+
 function main() {
     
-    getWaterFlow('ACMP1');
-    getWaterTemp('03049640');
-    getWaterHeight('PTTP1');
-    getSunCycle({
-        'latitude': 40.466846,
-        'longitude': -79.976543
-    });
-    getWeatherData('KPIT');
-    getCSOFlagStatus();
+    const parameter_sets = {
+        trra: {
+            id: "TRRA",
+            location: {
+                latitude: 40.466846,
+                longitude: -79.976543
+            },
+            flood_gauge: "PTTP1",
+            flow_gauge: "ACMP1",
+            water_temp_site_id: "03049640",
+            weather_station: "KPIT"
+        }
+    }
     
+    loadConditions(parameter_sets.trra);
 }
 
 window.addEventListener('load', (event) => {
