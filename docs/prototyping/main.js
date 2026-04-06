@@ -116,7 +116,7 @@ function formatWindMeasurements(speed, direction, gust) {
 
 function getWaterFlow(siteCode) {
     const data_url = "https://api.water.noaa.gov/nwps/v1/gauges/" + siteCode;
-    const tableCell = document.querySelector('td.value#water_flow');
+    const tableCell = document.querySelector('.value#water_flow');
     
     getJSONFrom(data_url).then((json) => {
         return new Measurement(
@@ -131,7 +131,7 @@ function getWaterFlow(siteCode) {
 
 function getWaterTemp(siteCode) {
     const data_url = "https://waterservices.usgs.gov/nwis/iv?format=json&sites=" + siteCode + "&parameterCd=00010&siteStatus=all";
-    const tableCell = document.querySelector("td.value#water_temp");
+    const tableCell = document.querySelector(".value#water_temp");
     
     getJSONFrom(data_url).then((json) => {
         const tempF = celsiusToFahrenheit(json.value.timeSeries[0].values[0].value[0].value);
@@ -154,8 +154,8 @@ function getSunCycle(location) {
     let dateString = now.getFullYear() + "-" + (now.getMonth() + 1) + "-" + now.getDate();
     // todo: compute tomorrow's dateString and use that as well
     
-    const sunrise_cell = document.querySelector('td.value#sunrise');
-    const sunset_cell = document.querySelector('td.value#sunset');
+    const sunrise_cell = document.querySelector('.value#sunrise');
+    const sunset_cell = document.querySelector('.value#sunset');
     
     const data_url = "https://api.sunrise-sunset.org/json?" + locationString + "&date=" + dateString + "&formatted=0"
     
@@ -170,7 +170,7 @@ function getSunCycle(location) {
 
 function getWaterHeight(siteCode) {
     const data_url = "https://api.water.noaa.gov/nwps/v1/gauges/" + siteCode;
-    const tableCell = document.querySelector('td.value#water_height');
+    const tableCell = document.querySelector('.value#water_height');
     
     getJSONFrom(data_url).then((json) => {
         let measurement = new Measurement(
@@ -215,9 +215,9 @@ function getWeatherData(siteCode) {
         
         const writeToTableCell = (measurement, cell_id) => { measurement.writeInto(document.querySelector('td.value#' + cell_id)); }
         
-        weatherData.visibility.writeInto(document.querySelector('td.value#visibility'));
-        weatherData.air_temp.writeInto(document.querySelector('td.value#air_temp'));
-        weatherData.humidity.writeInto(document.querySelector('td.value#humidity'));
+        weatherData.visibility.writeInto(document.querySelector('.value#visibility'));
+        weatherData.air_temp.writeInto(document.querySelector('.value#air_temp'));
+        weatherData.humidity.writeInto(document.querySelector('.value#humidity'));
         
         document.querySelector('td.value#wind').innerHTML = formatWindMeasurements(weatherData.wind_speed, weatherData.wind_direction, weatherData.wind_gust);
     });
@@ -240,15 +240,15 @@ function getAQIandUVI(location) {
             uv_index: new Measurement(json.current.uv_index, null, timestamp)
         };
     }).then((measurements) => {
-        document.querySelector('td.value#air_quality').innerHTML = measurements.air_quality.formatted();
-        document.querySelector('td.value#uv_index').innerHTML = measurements.uv_index.formatted();
+        document.querySelector('.value#air_quality').innerHTML = measurements.air_quality.formatted();
+        document.querySelector('.value#uv_index').innerHTML = measurements.uv_index.formatted();
     });
 }
 
 function getCSOFlagStatus() {
     // Convenience-setter
     const writeCSOFlagStatus = (status) => {
-        document.querySelector('td.value#cso_flag').innerHTML = status;
+        document.querySelector('.value#cso_flag').innerHTML = status;
     };
     
     // The CSO flag status is only monitored from 1 April to 31 October
