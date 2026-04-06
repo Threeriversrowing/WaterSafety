@@ -1,10 +1,15 @@
-<!DOCTYPE html>
+<!doctype html>
 <html lang="en">
     <head>
         <meta charset="utf-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1">
+        
         <title>WaterSafety Prototyping</title>
+        
+        <link href="./lib/bootstrap-5.3.8-dist/css/bootstrap.min.css" rel="stylesheet">
         <link href="styles.css" rel="stylesheet">
-        <script src="main.js"></script>
+        
+        <!-- scripts are in document.body.div#hidden-footer -->
     </head>
     <body>
         <div class="center">
@@ -67,6 +72,12 @@
         
             <hr />
             <p id="log"></p>
+        </div>
+        <div id="hidden-footer">
+            <script src="./lib/bootstrap-5.3.8-dist/js/bootstrap.bundle.min.js"></script>
+            <script src="./lib/popper-2.11.8-dist.js"></script>
+            <script src="./lib/preact-10.23.1-dist/preact.min.js"></script>
+            <script src="main.js"></script>
         </div>
     </body>
 </html>
