@@ -374,5 +374,3 @@ window.addEventListener('load', (event) => {
     
     main();
 });
-
-console.debug("main.js: loaded and executed");
