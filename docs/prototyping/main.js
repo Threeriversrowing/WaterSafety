@@ -52,7 +52,6 @@ function closestCardinalDirection(angle) {
         if (lowerLimit < 0) {
             shiftAmount = (0 - lowerLimit);
         }
-        // console.debug("   " + lowerLimit + "° <= " + theta + "° <= " + upperLimit + "° ?");
         
         if (
             (lowerLimit + shiftAmount) <= (theta + shiftAmount) &&
@@ -353,7 +352,7 @@ function main() {
 }
 
 window.addEventListener('load', (event) => {
-    console.debug("main.js: document laoded");
+    
     document.querySelectorAll('table#conditions td.value').forEach((td) => {
         td.innerHTML = "<i>loading…</i>";
     });

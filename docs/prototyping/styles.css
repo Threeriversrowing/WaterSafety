@@ -3,8 +3,26 @@
     WaterSafety Prototyping
 */
 
-body {
 
+/*  Light Mode Colors  */
+@media(prefers-color-scheme: light) {
+    :root {
+        --body-background-color: #ededed;
+        --body-foreground-color: #000000;
+    }
+}
+
+/*  Dark Mode Colors  */
+@media(prefers-color-scheme: dark) {
+    :root {
+        --body-background-color: #121212;
+        --body-foreground-color: #efefef;
+    }
+}
+
+body {
+    background-color: var(--body-background-color);
+    color: var(--body-foreground-color);
 }
 
 div.center {
