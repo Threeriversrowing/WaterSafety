@@ -154,13 +154,20 @@ function getSunCycle(location) {
     
     const now = new Date();
     
+    const now_unixtime_ms = now.valueOf();
+    const delta_t_ms = (1000 * 60 * 60 * 24) + 1024; // 1 day plus 1024ms in case of leap second + slip
+    const tomorrow_unixtime_ms = now_unixtime_ms + delta_t_ms;
+    const tomorrow = new Date(tomorrow_unixtime_ms);
+    
     let dateString = now.getFullYear() + "-" + (now.getMonth() + 1) + "-" + now.getDate();
-    // todo: compute tomorrow's dateString and use that as well
+    let tomorrowString = tomorrow.getFullYear() + "-" + (tomorrow.getMonth() + 1) + "-" + tomorrow.getDate();
     
     const sunrise_cell = document.querySelector('.value#sunrise');
     const sunset_cell = document.querySelector('.value#sunset');
     
-    const data_url = "https://api.sunrise-sunset.org/json?" + locationString + "&date=" + dateString + "&formatted=0"
+    // todo: encapsulate this in an API-client object (and address some of the lower todos)
+    const data_url = "https://api.sunrise-sunset.org/json?" + locationString + "&date=" + dateString + "&formatted=0";
+    const data_url2 = "https://api.sunrise-sunset.org/json?" + locationString + "&date=" + tomorrowString + "&formatted=0";
     
     getJSONFrom(data_url).then((json) => {
         const sunrise_value = new Date(Date.parse(json.results.sunrise));
@@ -170,6 +177,14 @@ function getSunCycle(location) {
         sunrise_cell.innerHTML = sunrise_value.toLocaleTimeString();
         sunset_cell.innerHTML = sunset_value.toLocaleTimeString();
     });
+    
+    getJSONFrom(data_url2).then((json) => {
+        const sunrise_value = new Date(Date.parse(json.results.sunrise));
+        const sunset_value = new Date(Date.parse(json.results.sunset));
+        // todo: use the tomorrow values
+    });
+    
+    // todo: use both fetch's results to show current daylight-state and time until next set/rise
 }
 
 function getWaterHeight(siteCode) {
