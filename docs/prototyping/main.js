@@ -77,7 +77,11 @@ class Measurement {
     }
     
     formatted() {
+        // todo: number's value formatting
         let base_string = ("" + this.value);
+        if (this.value.toFixed != null) {
+            base_string = ("" + this.value.toFixed(1));
+        }
         if (this.units != null && this.units != "") {
             base_string += (" " + this.units);
         }
@@ -163,6 +167,7 @@ function getSunCycle(location) {
         const sunrise_value = new Date(Date.parse(json.results.sunrise));
         const sunset_value = new Date(Date.parse(json.results.sunset));
         // todo: parse relative to current time and determine daylight state
+        // todo: discard seconds part of times
         sunrise_cell.innerHTML = sunrise_value.toLocaleTimeString();
         sunset_cell.innerHTML = sunset_value.toLocaleTimeString();
     });
@@ -305,7 +310,11 @@ function getCSOFlagStatus() {
         if (statusText == null) {
             throw new Error("No status text retrieved.");
         }
-        writeCSOFlagStatus(statusText);
+        const parsedStatusText = parseCSOStatusText(statusText);
+        if (parsedStatusText == null) {
+            throw new Error(`Could not parse status text: ${statusText}`);
+        }
+        writeCSOFlagStatus(parsedStatusText);
     });
 }
 
