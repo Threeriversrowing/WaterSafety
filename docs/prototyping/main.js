@@ -12,6 +12,45 @@ function kilometersToMiles(dist) {
     return (dist / 1.609344);
 }
 
+function durationBetweenDates(startDate, endDate) {
+    let difference_ms = endDate.valueOf() - startDate.valueOf();
+    let milliseconds = (difference_ms % 1000);
+    
+    let total_seconds = (difference_ms - milliseconds) / 1000;
+    let seconds = total_seconds % 60;
+    
+    let total_minutes = (total_seconds - seconds) / 60;
+    let minutes = total_minutes % 60;
+    
+    let total_hours = (total_minutes - minutes) / 60;
+    let hours = total_hours % 60;
+    
+    return {
+        hours: hours,
+        minutes: minutes,
+        seconds: seconds,
+        milliseconds: milliseconds
+    }
+}
+
+function formatDuration(duration) {
+    var duration_string = "";
+    
+    if (duration.hours < 10) {
+        duration_string += "0";
+    }
+    duration_string += duration.hours;
+    
+    duration_string += ":"
+    
+    if (duration.minutes < 10) {
+        duration_string += "0";
+    }
+    duration_string += duration.minutes;
+    
+    return duration_string;
+}
+
 // MARK: -
 
 class CompassOrientation {
@@ -148,7 +187,7 @@ function getWaterTemp(siteCode) {
     });
 }
 
-function getSunCycle(location) {
+async function _getSunCycleAsync(location) {
     
     const locationString = ("lat=" + location.latitude + '&lng=' + location.longitude);
     
@@ -166,25 +205,61 @@ function getSunCycle(location) {
     const sunset_cell = document.querySelector('.value#sunset');
     
     // todo: encapsulate this in an API-client object (and address some of the lower todos)
-    const data_url = "https://api.sunrise-sunset.org/json?" + locationString + "&date=" + dateString + "&formatted=0";
+    const data_url1 = "https://api.sunrise-sunset.org/json?" + locationString + "&date=" + dateString + "&formatted=0";
     const data_url2 = "https://api.sunrise-sunset.org/json?" + locationString + "&date=" + tomorrowString + "&formatted=0";
     
-    getJSONFrom(data_url).then((json) => {
-        const sunrise_value = new Date(Date.parse(json.results.sunrise));
-        const sunset_value = new Date(Date.parse(json.results.sunset));
-        // todo: parse relative to current time and determine daylight state
-        // todo: discard seconds part of times
-        sunrise_cell.innerHTML = sunrise_value.toLocaleTimeString();
-        sunset_cell.innerHTML = sunset_value.toLocaleTimeString();
-    });
+    let [todayData, tomorrowData] = await Promise.all([
+        getJSONFrom(data_url1).then((json) => {
+            return { sunrise: new Date(Date.parse(json.results.sunrise)), sunset: new Date(Date.parse(json.results.sunset)) };
+        }),
+        getJSONFrom(data_url2).then((json) => {
+            return { sunrise: new Date(Date.parse(json.results.sunrise)), sunset: new Date(Date.parse(json.results.sunset)) };
+        })
+    ]);
     
-    getJSONFrom(data_url2).then((json) => {
-        const sunrise_value = new Date(Date.parse(json.results.sunrise));
-        const sunset_value = new Date(Date.parse(json.results.sunset));
-        // todo: use the tomorrow values
-    });
+    const daylight_time_cell = document.querySelector('#daylight_time');
+    const daylight_note_cell = document.querySelector('#daylight_note');
     
-    // todo: use both fetch's results to show current daylight-state and time until next set/rise
+    if (now_unixtime_ms < todayData.sunrise.valueOf()) {
+        // Before sunrise
+        let time_until_sunrise = durationBetweenDates(now, todayData.sunrise);
+        let daylight_string = formatDuration(time_until_sunrise);
+        
+        daylight_time_cell.innerHTML = daylight_string;
+        daylight_note_cell.innerHTML = "until dawn";
+        
+    } else if (todayData.sunrise.valueOf() < now_unixtime_ms && now_unixtime_ms < todayData.sunset.valueOf()) {
+        // After sunrise, before sunset
+        let time_until_sunset = durationBetweenDates(now, todayData.sunset);
+        let daylight_string = formatDuration(time_until_sunset);
+        
+        daylight_time_cell.innerHTML = daylight_string;
+        daylight_note_cell.innerHTML = "remaining";
+        
+    } else if (todayData.sunset.valueOf() < now_unixtime_ms) {
+        // After sunset
+        let time_until_sunrise = durationBetweenDates(now, tomorrowData.sunrise);
+        let daylight_string = formatDuration(time_until_sunrise);
+        
+        daylight_time_cell.innerHTML = daylight_string;
+        daylight_note_cell.innerHTML = "until dawn (tomorrow)";
+        
+    } else {
+        // Impossible!
+        console.error("Nonsensical daylight data parsing. Data were:", todayData, tomorrowData);
+        daylight_time_cell.innerHTML = "!";
+        daylight_note_cell.innerHTML = "(error)";
+    }
+    // todo: set up timer to count down with wall clock
+    
+    return { today: todayData, tomorrow: tomorrowData };
+}
+
+function getSunCycle(location) {
+    
+    _getSunCycleAsync(location).then((sunData) => {
+        console.log("Retrieved sunData: ", sunData);
+    });
 }
 
 function getWaterHeight(siteCode) {

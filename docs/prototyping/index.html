@@ -12,21 +12,48 @@
         <!-- scripts are in document.body.div#hidden-footer -->
     </head>
     <body>
-        <div class="center">
-            <h1>WaterSafety Prototyping</h1>
-            <p>Experiments and proofs-of-concept.</p>
+        <nav id="main-nav" class="navbar bg-body-tertiary">
+            <div class="container-fluid">
+                <a class="navbar-brand" href="#">WaterSafety (Prototype)</a>
+            </div>
+        </nav>
+        <div class="container">
+            
+            <div class="row py-4">
+                <div class="col-12 col-sm-8">
+                    <table id="primary-conditions" class="table">
+                        <tr class="measurement">
+                            <td><span class="label fs-6 fw-medium align-baseline">Water flow</span></td>
+                            <td><span id="water_flow" class="badge rounded-pill fs-6 text-bg-danger fw-semibold align-baseline value"></span></td>
+                        </tr>
+                        <tr class="measurement">
+                            <td><span class="label fs-6 fw-medium align-baseline">Water temp</span></td>
+                            <td><span id="water_temp" class="badge rounded-pill fs-6 text-bg-success fw-semibold align-baseline value"></span></td>
+                        </tr>
+                        <tr class="measurement">
+                            <td><span class="label fs-6 fw-medium align-baseline">Daylight</span></td>
+                            <td>
+                                <span id="daylight_time" class="badge rounded-pill fs-6 text-bg-warning fw-semibold align-baseline value"></span>
+                                <span id="daylight_note" class="fs-6 align-baseline value"></span>
+                            </td>
+                        </tr>
+                    </table>
+                </div>
+                
+                <div class="col-12 col-sm-4">
+                    <div id="zone-card" class="card">
+                        <div class="card-body text-center">
+                            <h5 class="card-title fs-6">Zone</h5>
+                            <span id="zone-sign" class="fs-1">X</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <h5>Additional Conditions:</h5>
             <hr />
-        
-            <table id="conditions">
+            <table id="conditions" class="table">
                 <tbody>
-                    <tr class="measurement">
-                        <td class="label">Water flow:</td>
-                        <td class="value" id="water_flow"></td>
-                    </tr>
-                    <tr class="measurement">
-                        <td class="label">Water temp:</td>
-                        <td class="value" id="water_temp"></td>
-                    </tr>
                     <tr class="measurement">
                         <td class="label">Water height:</td>
                         <td class="value" id="water_height"></td>
@@ -34,14 +61,6 @@
                     <tr class="measurement">
                         <td class="label">CSO flag:</td>
                         <td class="value" id="cso_flag"></td>
-                    </tr>
-                    <tr class="measurement">
-                        <td class="label">Sunrise:</td>
-                        <td class="value" id="sunrise"></td>
-                    </tr>
-                    <tr class="measurement">
-                        <td class="label">Sunset:</td>
-                        <td class="value" id="sunset"></td>
                     </tr>
                     <tr class="measurement">
                         <td class="label">Visibility:</td>
@@ -69,9 +88,6 @@
                     </tr>
                 </tbody>
             </table>
-        
-            <hr />
-            <p id="log"></p>
         </div>
         <div id="hidden-footer">
             <script src="./lib/bootstrap-5.3.8-dist/js/bootstrap.bundle.min.js"></script>
