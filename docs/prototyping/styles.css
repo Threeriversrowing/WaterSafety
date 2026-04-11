@@ -22,7 +22,7 @@
 
 body {
     background-color: var(--body-background-color);
-    color: var(--body-foreground-color); 
+    color: var(--body-foreground-color);
     min-width: 360px;
     max-width: 1600px;
     overflow: scroll;
@@ -34,9 +34,11 @@ body {
 
 #primary-conditions {
     background-color: var(--body-background-color);
+    color: var(--body-foreground-color);
 }
 #primary-conditions * {
     background-color: var(--body-background-color);
+    color: var(--body-foreground-color); 
 }
 
 #zone-card {
