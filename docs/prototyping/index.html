@@ -12,82 +12,105 @@
         <!-- scripts are in document.body.div#hidden-footer -->
     </head>
     <body>
-        <nav id="main-nav" class="navbar bg-body-tertiary">
+        <!-- TODO: Extract navbar into component -->
+        <nav id="main-nav" class="navbar bg-body-tertiary position-sticky">
             <div class="container-fluid">
                 <a class="navbar-brand" href="#">WaterSafety (Prototype)</a>
             </div>
         </nav>
+        
         <div class="container">
-            
-            <div class="row py-4">
-                <div class="col-12 col-sm-8">
-                    <table id="primary-conditions" class="table">
+            <div class="row py-4 row-gap-3">
+                
+                <!-- TODO: Extract primary conditions into component -->
+                <div class="col-12 col-sm-4">
+                    <table id="primary-conditions" class="table table-borderless">
                         <tr class="measurement">
-                            <td><span class="label fs-6 fw-medium align-baseline">Water flow</span></td>
-                            <td><span id="water_flow" class="badge rounded-pill fs-6 text-bg-danger fw-semibold align-baseline value"></span></td>
-                        </tr>
-                        <tr class="measurement">
-                            <td><span class="label fs-6 fw-medium align-baseline">Water temp</span></td>
-                            <td><span id="water_temp" class="badge rounded-pill fs-6 text-bg-success fw-semibold align-baseline value"></span></td>
-                        </tr>
-                        <tr class="measurement">
-                            <td><span class="label fs-6 fw-medium align-baseline">Daylight</span></td>
+                            <th class="text-end w-40 fw-normal align-baseline" rowspan="2">
+                                <span class="label fs-6 align-baseline">Water</span>
+                            </td>
                             <td>
-                                <span id="daylight_time" class="badge rounded-pill fs-6 text-bg-warning fw-semibold align-baseline value"></span>
+                                <span id="water_flow" class="badge rounded-pill fs-6 fw-semibold align-baseline value"></span>
+                            </td>
+                        </tr>
+                        <tr class="measurement">
+                            <td>
+                                <span id="water_temp" class="badge rounded-pill fs-6 fw-semibold align-baseline value"></span>
+                            </td>
+                        </tr>
+                        <tr class="measurement">
+                            <td class="text-end w-40">
+                                <span class="label fs-6 align-baseline">Daylight</span>
+                            </td>
+                            <td>
+                                <span id="daylight_time" class="badge rounded-pill fs-6 fw-semibold align-baseline value"></span>
                                 <span id="daylight_note" class="fs-6 align-baseline value"></span>
                             </td>
                         </tr>
                     </table>
                 </div>
                 
-                <div class="col-12 col-sm-4">
-                    <div id="zone-card" class="card">
-                        <div class="card-body text-center">
-                            <h5 class="card-title fs-6">Zone</h5>
-                            <span id="zone-sign" class="fs-1">X</span>
+                <!-- TODO: Extract zone card into component -->
+                <div class="col-12 col-sm-8 col-lg-4">
+                    <div id="zone-card-container" class="my-2 mx-2">
+                        <div id="zone-card" class="card">
+                            <div class="card-header text-center fs-6 py-0 my-0">zone</div>
+                            <div class="card-body text-center py-0">
+                                <span id="zone-sign" class="">Z</span>
+                            </div>
                         </div>
+                    </div>
+                </div>
+                
+                <!-- TODO: Extract additional conditions into component -->
+                <!-- Possibly as expanding section under primary conditions -->
+                <div class="col-12 col-sm-8 col-md-6 col-lg-3">
+                    <div id="additional-conditions-card" class="card">
+                        <div class="card-header text-center fs-6 py-0 my-0">additional conditions</div>
+                        <div class="card-body">
+                            
+                            <table id="conditions" class="table">
+                                <tbody>
+                                    <tr class="measurement">
+                                        <td class="text-end w-50 label">Water height:</td>
+                                        <td class="value" id="water_height"></td>
+                                    </tr>
+                                    <tr class="measurement">
+                                        <td class="text-end w-50 label">CSO flag:</td>
+                                        <td class="value" id="cso_flag"></td>
+                                    </tr>
+                                    <tr class="measurement">
+                                        <td class="text-end w-50 label">Visibility:</td>
+                                        <td class="value" id="visibility"></td>
+                                    </tr>
+                                    <tr class="measurement">
+                                        <td class="text-end w-50 label">Wind:</td>
+                                        <td class="value" id="wind"></td>
+                                    </tr>
+                                    <tr class="measurement">
+                                        <td class="text-end w-50 label">Air:</td>
+                                        <td class="value" id="air_temp"></td>
+                                    </tr>
+                                    <tr class="measurement">
+                                        <td class="text-end w-50 label">Humidity:</td>
+                                        <td class="value" id="humidity"></td>
+                                    </tr>
+                                    <tr class="measurement">
+                                        <td class="text-end w-50 label">AQI:</td>
+                                        <td class="value" id="air_quality"></td>
+                                    </tr>
+                                    <tr class="measurement">
+                                        <td class="text-end w-50 label">UVI:</td>
+                                        <td class="value" id="uv_index"></td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                            
+                        </div> 
                     </div>
                 </div>
             </div>
             
-            <h5>Additional Conditions:</h5>
-            <hr />
-            <table id="conditions" class="table">
-                <tbody>
-                    <tr class="measurement">
-                        <td class="label">Water height:</td>
-                        <td class="value" id="water_height"></td>
-                    </tr>
-                    <tr class="measurement">
-                        <td class="label">CSO flag:</td>
-                        <td class="value" id="cso_flag"></td>
-                    </tr>
-                    <tr class="measurement">
-                        <td class="label">Visibility:</td>
-                        <td class="value" id="visibility"></td>
-                    </tr>
-                    <tr class="measurement">
-                        <td class="label">Wind:</td>
-                        <td class="value" id="wind"></td>
-                    </tr>
-                    <tr class="measurement">
-                        <td class="label">Air:</td>
-                        <td class="value" id="air_temp"></td>
-                    </tr>
-                    <tr class="measurement">
-                        <td class="label">Humidity:</td>
-                        <td class="value" id="humidity"></td>
-                    </tr>
-                    <tr class="measurement">
-                        <td class="label">AQI:</td>
-                        <td class="value" id="air_quality"></td>
-                    </tr>
-                    <tr class="measurement">
-                        <td class="label">UVI:</td>
-                        <td class="value" id="uv_index"></td>
-                    </tr>
-                </tbody>
-            </table>
         </div>
         <div id="hidden-footer">
             <script src="./lib/bootstrap-5.3.8-dist/js/bootstrap.bundle.min.js"></script>

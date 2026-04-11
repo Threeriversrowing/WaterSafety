@@ -32,36 +32,35 @@ body {
     border-bottom: 1pt solid black;
 }
 
-#primary-conditions {
+#primary-conditions,
+#primary-conditions * {
     background-color: var(--body-background-color);
     color: var(--body-foreground-color);
 }
-#primary-conditions * {
-    background-color: var(--body-background-color);
-    color: var(--body-foreground-color); 
+
+#zone-card-container {
+    
 }
 
 #zone-card {
     min-width: 96pt;
     max-width: 96pt;
-    min-height: 96pt;
-    max-height: 96pt;
+    max-height: 120pt;
     margin-left: auto;
     margin-right: auto;
+    margin-bottom: 24pt;
+    padding: 0;
 }
 
 #zone-sign {
-    padding-top: 24pt;
-    padding-bottom: 24pt;
-    padding-left: 24pt;
-    padding-right: 24pt;
+    font-size: 52pt;
+    padding: 0;
 }
 
-table#conditions tr.measurement td.label {
-    font-weight: bold;
-    text-align: right;
+#primary-conditions {
+    margin-bottom: 24pt;
 }
 
-table#conditions tr.measurement td.value {
-    text-align: left;
+#primary-conditions tr:last-child td {
+    border-bottom: none;
 }
