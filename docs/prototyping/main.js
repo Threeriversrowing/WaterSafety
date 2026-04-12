@@ -3,6 +3,7 @@
 //  WaterSafety Prototyping
 //
 
+// import './lib/preact-10.23.1-dist/preact.min.js';
 
 function celsiusToFahrenheit(degC) {
     return 32.0 + (degC * 1.8);
@@ -256,10 +257,7 @@ async function _getSunCycleAsync(location) {
 }
 
 function getSunCycle(location) {
-    
-    _getSunCycleAsync(location).then((sunData) => {
-        console.log("Retrieved sunData: ", sunData);
-    });
+    _getSunCycleAsync(location).then((sunData) => {});
 }
 
 function getWaterHeight(siteCode) {
