@@ -72,8 +72,19 @@ const CardinalDirections = Object.freeze({
     northEast: new CompassOrientation(45.0, "Northeast", "NE"),
     southEast: new CompassOrientation(135.0, "Southeast", "SE"),
     southWest: new CompassOrientation(225.0, "Southwest", "SW"),
-    northWest: new CompassOrientation(315.0, "Northwest", "NW")
-    // todo: add three-letter orientations
+    northWest: new CompassOrientation(315.0, "Northwest", "NW"),
+    
+    northNorthEast: new CompassOrientation(45-22.5, "North northeast", "NNE"),
+    eastNorthEast: new CompassOrientation(45+22.5, "East northeast", "ENE"),
+    
+    eastSouthEast: new CompassOrientation(135-22.5, "east SouthEast", "ESE"),
+    southSouthEast: new CompassOrientation(135+22.5, "south SouthEast", "SSE"),
+    
+    southSouthWest: new CompassOrientation(225-22.5, "south SouthWest", "SSW"),
+    westSouthWest: new CompassOrientation(225+22.5, "west SouthWest", "WSW"),
+    
+    westNorthWest: new CompassOrientation(315-22.5, "west NorthWest", "WNW"),
+    northNorthWest: new CompassOrientation(315+22.5, "north NorthWest", "NNW"),
     
 });
 
@@ -93,9 +104,11 @@ function closestCardinalDirection(angle) {
             shiftAmount = (0 - lowerLimit);
         }
         
+        let comparand = (theta + shiftAmount) % 360.0;
+        
         if (
-            (lowerLimit + shiftAmount) <= (theta + shiftAmount) &&
-            (theta+ shiftAmount) <= (upperLimit + shiftAmount)
+            (lowerLimit + shiftAmount) <= comparand &&
+            comparand <= (upperLimit + shiftAmount)
         ) {
             match = putativeDirection;
             break;
@@ -119,7 +132,7 @@ class Measurement {
         // todo: number's value formatting
         let base_string = ("" + this.value);
         if (this.value.toFixed != null) {
-            base_string = ("" + this.value.toFixed(1));
+            base_string = ("" + this.value.toFixed(0));
         }
         if (this.units != null && this.units != "") {
             base_string += (" " + this.units);
@@ -227,7 +240,7 @@ async function _getSunCycleAsync(location) {
         let daylight_string = formatDuration(time_until_sunrise);
         
         daylight_time_cell.innerHTML = daylight_string;
-        daylight_note_cell.innerHTML = "until dawn";
+        daylight_note_cell.innerHTML = "until sunrise";
         
     } else if (todayData.sunrise.valueOf() < now_unixtime_ms && now_unixtime_ms < todayData.sunset.valueOf()) {
         // After sunrise, before sunset
@@ -235,7 +248,7 @@ async function _getSunCycleAsync(location) {
         let daylight_string = formatDuration(time_until_sunset);
         
         daylight_time_cell.innerHTML = daylight_string;
-        daylight_note_cell.innerHTML = "remaining";
+        daylight_note_cell.innerHTML = "until sunset";
         
     } else if (todayData.sunset.valueOf() < now_unixtime_ms) {
         // After sunset
@@ -243,7 +256,7 @@ async function _getSunCycleAsync(location) {
         let daylight_string = formatDuration(time_until_sunrise);
         
         daylight_time_cell.innerHTML = daylight_string;
-        daylight_note_cell.innerHTML = "until dawn (tomorrow)";
+        daylight_note_cell.innerHTML = "until sunrise";
         
     } else {
         // Impossible!
@@ -359,7 +372,7 @@ function getCSOFlagStatus() {
     const CSOStatusRetrievalURL = "https://gist.githubusercontent.com/Threeriversrowing/99925116048b5932b75bfa2bbed09c53/raw/";
     
     //  These are derived from historical message texts but may change without warning
-    const CSOInEffectRegExpStr = /^(Overflows\ are\ in\ effect;)\ Minimize\ contact\ with\ waterways$\n^In\:\ (\d{2})\/(\d{2})\/(\d{4})\ \-\ (\d{2})\:(\d{2})\ ([AP]M)$/m;
+    const CSOInEffectRegExpStr = /^(Overflows\ are\ in\ effect;)\ Minimize\ contact\ with\ waterways$\n^In\:\ (\d{1,2})\/(\d{1,2})\/(\d{4})\ \-\ (\d{1,2})\:(\d{2})\ ([AP]M)$/m;
     const CSOEndedRegExpStr = /^(Overflows\ have\ ceased)\;\ Waterways\ may\ still\ be\ impaired.$\n^In\:\ (\d{2})\/(\d{2})\/(\d{4})\ \-\ (\d{2})\:(\d{2})\ ([AP]M)\<br\>Out\:\ (\d{2})\/(\d{2})\/(\d{4})\ \-\ (\d{2})\:(\d{2})\ ([AP]M)$/m;
     const CSODryWeatherRegExpStr = /^(System\ is\ in\ dry\ weather\ operation)\;\ No\ advisories\ are\ in\ effect$\n^In\:\ (\d{2})\/(\d{2})\/(\d{4})\ \-\ (\d{2})\:(\d{2})\ ([AP]M)\<br\>Out\:\ (\d{2})\/(\d{2})\/(\d{4})\ \-\ (\d{2})\:(\d{2})\ ([AP]M)\<br\>Dry\:\ (\d{2})\/(\d{2})\/(\d{4})\ \-\ (\d{2})\:(\d{2})\ ([AP]M)$/m;
 
@@ -378,11 +391,11 @@ function getCSOFlagStatus() {
     /// If none of the RegExp's above match, returns null
     function parseCSOStatusText(statusText) {
         if (statusText.match(inEffectRegExp)) {
-            return CSOStatus.inEffect;
+            return '<i class="bi bi-flag-fill text-danger"></i> in effect';
         } else if (statusText.match(endedRegExp)) {
-            return CSOStatus.ended;
+            return '<i class="bi bi-caret-down-fill text-info"></i> ended';
         } else if (statusText.match(dryWeatherRegExp)) {
-            return CSOStatus.dryWeather;
+            return '<i class="bi bi-check-lg"></i> dry weather';
         } else {
             return null;
         }
