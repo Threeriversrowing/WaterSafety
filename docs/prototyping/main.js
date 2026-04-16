@@ -373,8 +373,8 @@ function getCSOFlagStatus() {
     
     //  These are derived from historical message texts but may change without warning
     const CSOInEffectRegExpStr = /^(Overflows\ are\ in\ effect;)\ Minimize\ contact\ with\ waterways$\n^In\:\ (\d{1,2})\/(\d{1,2})\/(\d{4})\ \-\ (\d{1,2})\:(\d{2})\ ([AP]M)$/m;
-    const CSOEndedRegExpStr = /^(Overflows\ have\ ceased)\;\ Waterways\ may\ still\ be\ impaired.$\n^In\:\ (\d{2})\/(\d{2})\/(\d{4})\ \-\ (\d{2})\:(\d{2})\ ([AP]M)\<br\>Out\:\ (\d{2})\/(\d{2})\/(\d{4})\ \-\ (\d{2})\:(\d{2})\ ([AP]M)$/m;
-    const CSODryWeatherRegExpStr = /^(System\ is\ in\ dry\ weather\ operation)\;\ No\ advisories\ are\ in\ effect$\n^In\:\ (\d{2})\/(\d{2})\/(\d{4})\ \-\ (\d{2})\:(\d{2})\ ([AP]M)\<br\>Out\:\ (\d{2})\/(\d{2})\/(\d{4})\ \-\ (\d{2})\:(\d{2})\ ([AP]M)\<br\>Dry\:\ (\d{2})\/(\d{2})\/(\d{4})\ \-\ (\d{2})\:(\d{2})\ ([AP]M)$/m;
+    const CSOEndedRegExpStr = /^(Overflows\ have\ ceased)\;\ Waterways\ may\ still\ be\ impaired.$\n^In\:\ (\d{1,2})\/(\d{1,2})\/(\d{4})\ \-\ (\d{1,2})\:(\d{2})\ ([AP]M)\<br\>Out\:\ (\d{1,2})\/(\d{1,2})\/(\d{4})\ \-\ (\d{1,2})\:(\d{2})\ ([AP]M)$/m;
+    const CSODryWeatherRegExpStr = /^(System\ is\ in\ dry\ weather\ operation)\;\ No\ advisories\ are\ in\ effect$\n^In\:\ (\d{1,2})\/(\d{1,2})\/(\d{4})\ \-\ (\d{1,2})\:(\d{2})\ ([AP]M)\<br\>Out\:\ (\d{1,2})\/(\d{1,2})\/(\d{4})\ \-\ (\d{1,2})\:(\d{2})\ ([AP]M)\<br\>Dry\:\ (\d{1,2})\/(\d{1,2})\/(\d{4})\ \-\ (\d{1,2})\:(\d{2})\ ([AP]M)$/m;
 
     const inEffectRegExp = (new RegExp()).compile(CSOInEffectRegExpStr);
     const endedRegExp = (new RegExp()).compile(CSOEndedRegExpStr);
