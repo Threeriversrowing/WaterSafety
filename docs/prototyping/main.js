@@ -132,7 +132,7 @@ class Measurement {
         // todo: number's value formatting
         let base_string = ("" + this.value);
         if (this.value.toFixed != null) {
-            base_string = ("" + this.value.toFixed(0));
+            base_string = ("" + this.value.toFixed(1));
         }
         if (this.units != null && this.units != "") {
             base_string += (" " + this.units);
