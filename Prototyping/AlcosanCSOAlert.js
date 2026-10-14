@@ -61,6 +61,7 @@ export class AlcosanCSOAlert {
             // TODO: report the error and the full message text via TBD error-reporting mechanism
             let error = new Error(`AlcosanCSOAlert::MessageParsingError: message text did not match patterns. statusLine = ${statusLine}`);
             error["kind"] = this.ErrorKind.Malformed;
+            throw error;
         }
     }
 
