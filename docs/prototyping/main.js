@@ -3,12 +3,53 @@
 //  WaterSafety Prototyping
 //
 
+// import './lib/preact-10.23.1-dist/preact.min.js';
+
 function celsiusToFahrenheit(degC) {
     return 32.0 + (degC * 1.8);
 }
 
 function kilometersToMiles(dist) {
     return (dist / 1.609344);
+}
+
+function durationBetweenDates(startDate, endDate) {
+    let difference_ms = endDate.valueOf() - startDate.valueOf();
+    let milliseconds = (difference_ms % 1000);
+
+    let total_seconds = (difference_ms - milliseconds) / 1000;
+    let seconds = total_seconds % 60;
+
+    let total_minutes = (total_seconds - seconds) / 60;
+    let minutes = total_minutes % 60;
+
+    let total_hours = (total_minutes - minutes) / 60;
+    let hours = total_hours % 60;
+
+    return {
+        hours: hours,
+        minutes: minutes,
+        seconds: seconds,
+        milliseconds: milliseconds
+    }
+}
+
+function formatDuration(duration) {
+    var duration_string = "";
+
+    if (duration.hours < 10) {
+        duration_string += "0";
+    }
+    duration_string += duration.hours;
+
+    duration_string += ":"
+
+    if (duration.minutes < 10) {
+        duration_string += "0";
+    }
+    duration_string += duration.minutes;
+
+    return duration_string;
 }
 
 // MARK: -
@@ -31,8 +72,19 @@ const CardinalDirections = Object.freeze({
     northEast: new CompassOrientation(45.0, "Northeast", "NE"),
     southEast: new CompassOrientation(135.0, "Southeast", "SE"),
     southWest: new CompassOrientation(225.0, "Southwest", "SW"),
-    northWest: new CompassOrientation(315.0, "Northwest", "NW")
-    // todo: add three-letter orientations
+    northWest: new CompassOrientation(315.0, "Northwest", "NW"),
+
+    northNorthEast: new CompassOrientation(45-22.5, "North northeast", "NNE"),
+    eastNorthEast: new CompassOrientation(45+22.5, "East northeast", "ENE"),
+
+    eastSouthEast: new CompassOrientation(135-22.5, "east SouthEast", "ESE"),
+    southSouthEast: new CompassOrientation(135+22.5, "south SouthEast", "SSE"),
+
+    southSouthWest: new CompassOrientation(225-22.5, "south SouthWest", "SSW"),
+    westSouthWest: new CompassOrientation(225+22.5, "west SouthWest", "WSW"),
+
+    westNorthWest: new CompassOrientation(315-22.5, "west NorthWest", "WNW"),
+    northNorthWest: new CompassOrientation(315+22.5, "north NorthWest", "NNW"),
 
 });
 
@@ -51,11 +103,12 @@ function closestCardinalDirection(angle) {
         if (lowerLimit < 0) {
             shiftAmount = (0 - lowerLimit);
         }
-        // console.debug("   " + lowerLimit + "° <= " + theta + "° <= " + upperLimit + "° ?");
+
+        let comparand = (theta + shiftAmount) % 360.0;
 
         if (
-            (lowerLimit + shiftAmount) <= (theta + shiftAmount) &&
-            (theta+ shiftAmount) <= (upperLimit + shiftAmount)
+            (lowerLimit + shiftAmount) <= comparand &&
+            comparand <= (upperLimit + shiftAmount)
         ) {
             match = putativeDirection;
             break;
@@ -76,7 +129,14 @@ class Measurement {
     }
 
     formatted() {
-        let base_string = ("" + this.value + " " + this.units);
+        // todo: number's value formatting
+        let base_string = ("" + this.value);
+        if (this.value.toFixed != null) {
+            base_string = ("" + this.value.toFixed(1));
+        }
+        if (this.units != null && this.units != "") {
+            base_string += (" " + this.units);
+        }
         if (this.comment != "") {
             base_string += (" (" + this.comment + ")");
         }
@@ -104,7 +164,7 @@ function formatWindMeasurements(speed, direction, gust) {
         return speed.formatted();
     } else {
         let heading = closestCardinalDirection(direction.value);
-        return (speed.formatted() + " (&rarr;" + direction.formatted() + " " + heading.label + ")");
+        return (speed.formatted() + " (" + direction.formatted() + " " + heading.label + "&rarr;)");
     }
 }
 
@@ -112,7 +172,7 @@ function formatWindMeasurements(speed, direction, gust) {
 
 function getWaterFlow(siteCode) {
     const data_url = "https://api.water.noaa.gov/nwps/v1/gauges/" + siteCode;
-    const tableCell = document.querySelector('td.value#water_flow');
+    const tableCell = document.querySelector('.value#water_flow');
 
     getJSONFrom(data_url).then((json) => {
         return new Measurement(
@@ -127,7 +187,7 @@ function getWaterFlow(siteCode) {
 
 function getWaterTemp(siteCode) {
     const data_url = "https://waterservices.usgs.gov/nwis/iv?format=json&sites=" + siteCode + "&parameterCd=00010&siteStatus=all";
-    const tableCell = document.querySelector("td.value#water_temp");
+    const tableCell = document.querySelector(".value#water_temp");
 
     getJSONFrom(data_url).then((json) => {
         const tempF = celsiusToFahrenheit(json.value.timeSeries[0].values[0].value[0].value);
@@ -141,32 +201,81 @@ function getWaterTemp(siteCode) {
     });
 }
 
-function getSunCycle(location) {
+async function _getSunCycleAsync(location) {
 
     const locationString = ("lat=" + location.latitude + '&lng=' + location.longitude);
 
     const now = new Date();
 
+    const now_unixtime_ms = now.valueOf();
+    const delta_t_ms = (1000 * 60 * 60 * 24) + 1024; // 1 day plus 1024ms in case of leap second + slip
+    const tomorrow_unixtime_ms = now_unixtime_ms + delta_t_ms;
+    const tomorrow = new Date(tomorrow_unixtime_ms);
+
     let dateString = now.getFullYear() + "-" + (now.getMonth() + 1) + "-" + now.getDate();
-    // todo: compute tomorrow's dateString and use that as well
+    let tomorrowString = tomorrow.getFullYear() + "-" + (tomorrow.getMonth() + 1) + "-" + tomorrow.getDate();
 
-    const sunrise_cell = document.querySelector('td.value#sunrise');
-    const sunset_cell = document.querySelector('td.value#sunset');
+    const sunrise_cell = document.querySelector('.value#sunrise');
+    const sunset_cell = document.querySelector('.value#sunset');
 
-    const data_url = "https://api.sunrise-sunset.org/json?" + locationString + "&date=" + dateString + "&formatted=0"
+    // todo: encapsulate this in an API-client object (and address some of the lower todos)
+    const data_url1 = "https://api.sunrise-sunset.org/json?" + locationString + "&date=" + dateString + "&formatted=0";
+    const data_url2 = "https://api.sunrise-sunset.org/json?" + locationString + "&date=" + tomorrowString + "&formatted=0";
 
-    getJSONFrom(data_url).then((json) => {
-        const sunrise_value = new Date(Date.parse(json.results.sunrise));
-        const sunset_value = new Date(Date.parse(json.results.sunset));
-        // todo: parse relative to current time and determine daylight state
-        sunrise_cell.innerHTML = sunrise_value.toLocaleTimeString();
-        sunset_cell.innerHTML = sunset_value.toLocaleTimeString();
-    });
+    let [todayData, tomorrowData] = await Promise.all([
+        getJSONFrom(data_url1).then((json) => {
+            return { sunrise: new Date(Date.parse(json.results.sunrise)), sunset: new Date(Date.parse(json.results.sunset)) };
+        }),
+        getJSONFrom(data_url2).then((json) => {
+            return { sunrise: new Date(Date.parse(json.results.sunrise)), sunset: new Date(Date.parse(json.results.sunset)) };
+        })
+    ]);
+
+    const daylight_time_cell = document.querySelector('#daylight_time');
+    const daylight_note_cell = document.querySelector('#daylight_note');
+
+    if (now_unixtime_ms < todayData.sunrise.valueOf()) {
+        // Before sunrise
+        let time_until_sunrise = durationBetweenDates(now, todayData.sunrise);
+        let daylight_string = formatDuration(time_until_sunrise);
+
+        daylight_time_cell.innerHTML = daylight_string;
+        daylight_note_cell.innerHTML = "until sunrise";
+
+    } else if (todayData.sunrise.valueOf() < now_unixtime_ms && now_unixtime_ms < todayData.sunset.valueOf()) {
+        // After sunrise, before sunset
+        let time_until_sunset = durationBetweenDates(now, todayData.sunset);
+        let daylight_string = formatDuration(time_until_sunset);
+
+        daylight_time_cell.innerHTML = daylight_string;
+        daylight_note_cell.innerHTML = "until sunset";
+
+    } else if (todayData.sunset.valueOf() < now_unixtime_ms) {
+        // After sunset
+        let time_until_sunrise = durationBetweenDates(now, tomorrowData.sunrise);
+        let daylight_string = formatDuration(time_until_sunrise);
+
+        daylight_time_cell.innerHTML = daylight_string;
+        daylight_note_cell.innerHTML = "until sunrise";
+
+    } else {
+        // Impossible!
+        console.error("Nonsensical daylight data parsing. Data were:", todayData, tomorrowData);
+        daylight_time_cell.innerHTML = "!";
+        daylight_note_cell.innerHTML = "(error)";
+    }
+    // todo: set up timer to count down with wall clock
+
+    return { today: todayData, tomorrow: tomorrowData };
+}
+
+function getSunCycle(location) {
+    _getSunCycleAsync(location).then((sunData) => {});
 }
 
 function getWaterHeight(siteCode) {
     const data_url = "https://api.water.noaa.gov/nwps/v1/gauges/" + siteCode;
-    const tableCell = document.querySelector('td.value#water_height');
+    const tableCell = document.querySelector('.value#water_height');
 
     getJSONFrom(data_url).then((json) => {
         let measurement = new Measurement(
@@ -202,6 +311,7 @@ function getWeatherData(siteCode) {
             air_temp: new Measurement(airTempF, "°F", weather.timestamp),
             humidity: new Measurement(weather.relativeHumidity.value.toFixed(0), "%", weather.timestamp),
             visibility: new Measurement(visibility_mi, "miles", weather.timestamp),
+            // Weather.gov returns the direction the wind is coming FROM -- may want to switch to proper vector convention
             wind_direction: new Measurement(weather.windDirection.value, "°", weather.timestamp),
             wind_gust: new Measurement(windGust_kph, "miles/hour", weather.timestamp),
             wind_speed: new Measurement(windSpeed_kph, "miles/hour", weather.timestamp)
@@ -210,18 +320,40 @@ function getWeatherData(siteCode) {
 
         const writeToTableCell = (measurement, cell_id) => { measurement.writeInto(document.querySelector('td.value#' + cell_id)); }
 
-        weatherData.visibility.writeInto(document.querySelector('td.value#visibility'));
-        weatherData.air_temp.writeInto(document.querySelector('td.value#air_temp'));
-        weatherData.humidity.writeInto(document.querySelector('td.value#humidity'));
+        weatherData.visibility.writeInto(document.querySelector('.value#visibility'));
+        weatherData.air_temp.writeInto(document.querySelector('.value#air_temp'));
+        weatherData.humidity.writeInto(document.querySelector('.value#humidity'));
 
         document.querySelector('td.value#wind').innerHTML = formatWindMeasurements(weatherData.wind_speed, weatherData.wind_direction, weatherData.wind_gust);
+    });
+}
+
+function getAQIandUVI(location) {
+    const data_url = ("https://air-quality-api.open-meteo.com/v1/air-quality?" +
+        "latitude=" +location.latitude +
+        "&longitude=" + location.longitude +
+        "&current=us_aqi,uv_index");
+    // append &timezone=America%2FNew_York to get in eastern time -- with it omitted, will be in UTC
+    // but you'll have to remove the + 'Z' bit below
+
+    getJSONFrom(data_url).then((json) => {
+        // OpenMeteo vends the timestamp without a timezone marker,
+        // so we request it in UTC and append the marker here to be certain
+        const timestamp = new Date(Date.parse(json.current.time + 'Z'));
+        return {
+            air_quality: new Measurement(json.current.us_aqi, null, timestamp),
+            uv_index: new Measurement(json.current.uv_index, null, timestamp)
+        };
+    }).then((measurements) => {
+        document.querySelector('.value#air_quality').innerHTML = measurements.air_quality.formatted();
+        document.querySelector('.value#uv_index').innerHTML = measurements.uv_index.formatted();
     });
 }
 
 function getCSOFlagStatus() {
     // Convenience-setter
     const writeCSOFlagStatus = (status) => {
-        document.querySelector('td.value#cso_flag').innerHTML = status;
+        document.querySelector('.value#cso_flag').innerHTML = status;
     };
 
     // The CSO flag status is only monitored from 1 April to 31 October
@@ -277,27 +409,43 @@ function getCSOFlagStatus() {
 
 // MARK: -
 
+function loadConditions(parameter_set) {
+    getAQIandUVI(parameter_set.location);
+    getSunCycle(parameter_set.location);
+    getWaterFlow(parameter_set.flow_gauge);
+    getWaterHeight(parameter_set.flood_gauge);
+    getWaterTemp(parameter_set.water_temp_site_id);
+    getWeatherData(parameter_set.weather_station);
+
+    if (parameter_set.id == "TRRA") {
+        getCSOFlagStatus();
+    }
+}
+
 function main() {
 
-    getWaterFlow('ACMP1');
-    getWaterTemp('03049640');
-    getWaterHeight('PTTP1');
-    getSunCycle({
-        'latitude': 40.466846,
-        'longitude': -79.976543
-    });
-    getWeatherData('KPIT');
-    getCSOFlagStatus();
+    const parameter_sets = {
+        trra: {
+            id: "TRRA",
+            location: {
+                latitude: 40.466846,
+                longitude: -79.976543
+            },
+            flood_gauge: "PTTP1",
+            flow_gauge: "ACMP1",
+            water_temp_site_id: "03049640",
+            weather_station: "KPIT"
+        }
+    }
 
+    loadConditions(parameter_sets.trra);
 }
 
 window.addEventListener('load', (event) => {
-    console.debug("main.js: document laoded");
+
     document.querySelectorAll('table#conditions td.value').forEach((td) => {
         td.innerHTML = "<i>loading…</i>";
     });
 
     main();
 });
-
-console.debug("main.js: loaded and executed");

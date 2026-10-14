@@ -1,0 +1,72 @@
+/*
+    styles.css
+    WaterSafety Prototyping
+*/
+
+
+/*  Light Mode Colors  */
+@media(prefers-color-scheme: light) {
+    :root {
+        --body-background-color: #f4f4f4;
+        --body-foreground-color: #000000;
+    }
+}
+
+/*  Dark Mode Colors  */
+@media(prefers-color-scheme: dark) {
+    :root {
+        --body-background-color: #121212;
+        --body-foreground-color: #efefef;
+    }
+}
+
+
+
+body,
+body *,
+#main-nav,
+#main-nav *,
+#primary-conditions,
+#primary-conditions *,
+#additional-conditions-card,
+#additional-conditions-card * {
+    background-color: var(--body-background-color);
+    color: var(--body-foreground-color);
+}
+
+body {
+    min-width: 360px;
+    max-width: 1600px;
+    overflow: scroll;
+}
+
+#main-nav {
+    border-bottom: 1pt solid var(--body-foreground-color);
+}
+
+#zone-card-container {
+    
+}
+
+#zone-card {
+    min-width: 96pt;
+    max-width: 96pt;
+    max-height: 120pt;
+    margin-left: auto;
+    margin-right: auto;
+    margin-bottom: 24pt;
+    padding: 0;
+}
+
+#zone-sign {
+    font-size: 52pt;
+    padding: 0;
+}
+
+#primary-conditions {
+    margin-bottom: 24pt;
+}
+
+#primary-conditions tr:last-child td {
+    border-bottom: none;
+}
